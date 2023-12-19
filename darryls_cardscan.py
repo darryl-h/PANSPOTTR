@@ -24,7 +24,8 @@ def get_free_memory():
 def is_luhn_valid(card_number: str) -> bool:
     """ Check if the card number is valid based on Luhn's algorithm. """
     """ Remove any known false positives """
-    if card_number == '0000000000000000':
+    false_positive_numbers = {'0000000000000000', '00000000000000', '000000000000000000'}
+    if card_number in false_positive_numbers:
         return False
     def digits_of(n):
         return [int(d) for d in str(n)]
