@@ -15,7 +15,7 @@ You should test this script thoroughly in a controlled environment before consid
 # Known issues
 
 ## Memory Consumption with Large Files
-The script may consume a significant amount of memory when processing large files. If the script terminates unexpectedly and you see a Killed message at the end of the run, this may indicate that the system ran out of memory.
+The script may consume a significant amount of memory when processing large files. If the script terminates unexpectedly and you see a `Killed` message at the end of the run, this may indicate that the system ran out of memory.
 
 To confirm this, you can check the system logs for out-of-memory (OOM) messages. Here are examples of what these messages might look like in your logs:
 ```
