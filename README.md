@@ -1,2 +1,2 @@
 # CardScanner
-This is a simple Python script that implements the Luhn algorithm to check whether a given credit card number is valid. The Luhn algorithm, also known as the "modulus 10" or "mod 10" algorithm, is a simple checksum formula used to validate a variety of identification numbers, most notably credit card numbers.
+This script is quite basic and may need further optimization for efficiency and accuracy, especially in handling large files or different file formats. Also, running this script on a system could consume significant resources, depending on the amount of data to be scanned.
