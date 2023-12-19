@@ -1,10 +1,12 @@
 import os
 import re
 import logging
+import sys
 from typing import List
 
-# Setting up logging
-logging.basicConfig(filename='darryls_scan.log', level=logging.INFO, format='%(asctime)s - %(message)s')
+""" Setup Logging """
+log_file_path = 'darryls_scan.log'
+logging.basicConfig(filename=log_file_path, level=logging.INFO, format='%(asctime)s - %(message)s')
 
 def get_free_memory():
     """ Get the amount of free memory in MB from /proc/meminfo. """
@@ -21,6 +23,9 @@ def get_free_memory():
 
 def is_luhn_valid(card_number: str) -> bool:
     """ Check if the card number is valid based on Luhn's algorithm. """
+    """ Remove any known false positives """
+    if card_number == '0000000000000000':
+        return False
     def digits_of(n):
         return [int(d) for d in str(n)]
     digits = digits_of(card_number)
@@ -38,6 +43,9 @@ def find_potential_card_numbers(s: str) -> List[str]:
 
 def scan_file(file_path: str):
     """ Scan a single file for valid credit card numbers. """
+    """ Skip the log file that we create """
+    if file_path.endswith(log_file_path):
+        return
     logging.info(f"Opening file: {file_path}")
     try:
         with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
@@ -51,8 +59,11 @@ def scan_file(file_path: str):
         print(f"Error reading file {file_path}: {e}")
         logging.info(f"Error reading file {file_path}: {e}")
 
-def scan_file_lowmem(file_path: str):
+def scan_file_chunk(file_path: str):
     """ Scan a single file for valid credit card numbers by reading in chunks. """
+    """ Skip the log file that we create """
+    if file_path.endswith(log_file_path):
+        return
     logging.info(f"Opening file: {file_path}")
     chunk_size = 1024 * 1024  # Size of each chunk in bytes (1MB in this example)
     try:
@@ -71,17 +82,32 @@ def scan_file_lowmem(file_path: str):
         print(f"Error reading file {file_path}: {e}")
         logging.info(f"Error reading file {file_path}: {e}")
 
-def scan_directory(path: str):
+def scan_directory(path: str, use_chunk_method=False):
     """ Recursively scan a directory for files and analyze each file. """
+    ignored_directories = {'/proc', '/sys', '/dev', '/var/log/journal', '/boot', '/tmp', '/var/tmp', '/lost+found', '/mnt', '/media', '/usr', '/bin', '/sbin', '/lib', '/lib64'}
+    """
+    /sys and /proc: Virtual filesystems providing windows into kernel internals.
+    /dev: Contains device files and is not a typical location for stored user data.
+    /boot: Contains boot loader files, kernels, and other files needed to boot the operating system.
+    /tmp and /var/tmp: Temporary file storage. While it's possible for temporary files to contain sensitive data, these directories are often cleared on reboot or contain transient data.
+    /lost+found: Used by the fsck utility for recovering files after a file system check. Files here are usually fragmented and not useful for your scan.
+    /mnt and /media: Mount points for temporary mounts and removable media. Scanning here might not be useful, especially if these directories are used for mounting external resources that don't need to be scanned.
+    /usr: Contains the majority of user utilities and applications. While there's a possibility of stored data in subdirectories like /usr/local, most contents are static application files.
+    /bin, /sbin, /lib, /lib64: Contain binary executables and libraries essential for the system's operation. These directories are unlikely to contain user data.
+    """
+    scan_method = scan_file_chunk if use_chunk_method else scan_file
     for root, dirs, files in os.walk(path):
+        """ Skip ignored directories """
+        if any(ignored_dir in root for ignored_dir in ignored_directories):
+            continue
         for file in files:
-            scan_file(os.path.join(root, file))
+            scan_method(os.path.join(root, file))
 
-# Example usage
-free_memory = get_free_memory()
-if free_memory is not None:
-    print(f"Free memory available: {free_memory:.2f} MB")
-    logging.info(f"Free memory available: {free_memory:.2f} MB")
-
-scan_directory('/')
-
+""" MAIN """
+if __name__ == "__main__":
+    """ Print the free memory """
+    free_memory = get_free_memory()
+    if free_memory is not None:
+        print(f"Free memory available: {free_memory:.2f} MB")
+    use_chunk_method = '-chunk' in sys.argv
+    scan_directory('/', use_chunk_method=use_chunk_method)
