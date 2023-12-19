@@ -2,6 +2,8 @@ import os
 import re
 import logging
 import sys
+import socket
+import requests
 from typing import List
 
 """ Setup Logging """
@@ -18,8 +20,43 @@ def get_free_memory():
                     free_memory_kb = int(line.split()[1])
                     return free_memory_kb / 1024
     except FileNotFoundError:
-        print("Could not access /proc/meminfo")
         return None
+
+def get_lan_ip():
+    """ Get the LAN IP address of the system. """
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            s.connect(("8.8.8.8", 80))
+            return s.getsockname()[0]
+    except socket.error:
+        return None
+
+def get_external_ip():
+    """ Get the external IP address of the system. """
+    try:
+        response = requests.get('https://api.ipify.org')
+        return response.text
+    except requests.RequestException:
+        return None
+
+def get_system_info():
+    """ Get system information including hostname, local IP, external IP, and free memory. """
+    hostname = socket.gethostname()
+    lan_ip = get_lan_ip()
+    external_ip = get_external_ip()
+    free_memory = get_free_memory()
+    print("-" * 30)
+    logging.info("-" * 30)
+    print(f"Hostname: {hostname}")
+    logging.info(f"Hostname: {hostname}")
+    print(f"LAN IP Address: {lan_ip if lan_ip else 'Not available'}")
+    logging.info(f"LAN IP Address: {lan_ip if lan_ip else 'Not available'}")
+    print(f"External IP Address: {external_ip if external_ip else 'Not available'}")
+    logging.info(f"External IP Address: {external_ip if external_ip else 'Not available'}")
+    print(f"Free Memory: {free_memory:.2f} MB" if free_memory is not None else "Free Memory: Not available")
+    logging.info(f"Free Memory: {free_memory:.2f} MB" if free_memory is not None else "Free Memory: Not available")
+    print("-" * 30)
+    logging.info("-" * 30)
 
 def is_luhn_valid(card_number: str) -> bool:
     """ Check if the card number is valid based on Luhn's algorithm. """
@@ -106,6 +143,8 @@ def scan_directory(path: str, use_chunk_method=False):
 
 """ MAIN """
 if __name__ == "__main__":
+    """ Print the IP and Hostname """
+    get_system_info()
     """ Print the free memory """
     free_memory = get_free_memory()
     if free_memory is not None:
