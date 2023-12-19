@@ -24,7 +24,8 @@ To confirm this, you can check the system logs for out-of-memory (OOM) messages.
 ```
 If you encounter this issue, consider:  
 1. Running the script on a system with more available memory.  
-2. Added `-chunk` to the command line. Do note that this will lower accuracy because reading in 1MB chunks can split a credit card number across two chunks. This may also increase the time it takes to run.
+2. Adding `-chunk` to the command line.  
+   Do note that this will lower accuracy because reading in 1MB chunks can split a credit card number across two chunks. This may also increase the time it takes to run.
 
 # LEGAL DISCLAIMER
 The provided script ("Software") is offered "AS IS" without any warranty of any kind, either expressed or implied, including, but not limited to, the implied warranties of merchantability, fitness for a particular purpose, and non-infringement.
