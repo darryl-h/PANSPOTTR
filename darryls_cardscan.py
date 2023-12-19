@@ -81,6 +81,7 @@ def scan_directory(path: str):
 free_memory = get_free_memory()
 if free_memory is not None:
     print(f"Free memory available: {free_memory:.2f} MB")
+    logging.info(f"Free memory available: {free_memory:.2f} MB")
 
 scan_directory('/')
 
