@@ -23,8 +23,8 @@ To confirm this, you can check the system logs for out-of-memory (OOM) messages.
 /var/log/syslog:Dec 19 11:14:37 ubuntu-20-04LTS kernel: [5254542.749772] oom_reaper: reaped process 2190495 (python3), now anon-rss:0kB, file-rss:0kB, shmem-rss:0kB
 ```
 If you encounter this issue, consider:  
-a) Running the script on a system with more available memory.  
-b) Added `-chunk` to the command line. Do note that this will lower accuracy because reading in 1MB chunks can split a credit card number across two chunks. This may also increase the time it takes to run.
+1. Running the script on a system with more available memory.  
+2. Added `-chunk` to the command line. Do note that this will lower accuracy because reading in 1MB chunks can split a credit card number across two chunks. This may also increase the time it takes to run.
 
 # LEGAL DISCLAIMER
 The provided script ("Software") is offered "AS IS" without any warranty of any kind, either expressed or implied, including, but not limited to, the implied warranties of merchantability, fitness for a particular purpose, and non-infringement.
