@@ -1,5 +1,10 @@
 import os
 import re
+import logging
+
+# Setting up logging
+logging.basicConfig(filename='darryls_scan.log', level=logging.INFO, format='%(asctime)s - %(message)s')
+
 from typing import List
 
 def is_luhn_valid(card_number: str) -> bool:
@@ -21,6 +26,7 @@ def find_potential_card_numbers(s: str) -> List[str]:
 
 def scan_file(file_path: str):
     """ Scan a single file for valid credit card numbers. """
+    logging.info(f"Opening file: {file_path}")
     try:
         with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
             content = file.read()
@@ -28,6 +34,7 @@ def scan_file(file_path: str):
             for card in potential_cards:
                 if is_luhn_valid(card):
                     print(f"Valid card number found in {file_path}: {card}")
+                    logging.info(f"Valid card number found in {file_path}: {card}")
     except Exception as e:
         print(f"Error reading file {file_path}: {e}")
 
@@ -39,4 +46,3 @@ def scan_directory(path: str):
 
 # Example usage
 scan_directory('/')
-
