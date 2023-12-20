@@ -115,12 +115,12 @@ def find_potential_card_numbers(s: str) -> List[str]:
 """ This is our list of ignored file extensions """
 ignored_extensions = {'.pdf', '.docx', '.bin', '.exe', '.dll', '.zip', '.rar', '.gz'}  # Add more as needed
 
-def scan_file(file_path: str, use_chunk_method=False):
+def scan_file(file_path: str, use_chunk_method=False, report_unknown=False):
     """ Scan a single file for valid credit card numbers, with optional chunking. """
     if file_path.endswith(log_file_path):
         return
     if file_path.lower().endswith(tuple(ignored_extensions)):
-        logging.info(f"Skipping file: {file_path}")
+        logging.debug(f"Skipping file: {file_path}")
         return
 
     logging.debug(f"Opening file: {file_path}")
@@ -136,19 +136,20 @@ def scan_file(file_path: str, use_chunk_method=False):
         else:
             with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
                 content = file.read()
-                process_content(content, file_path)
+                process_content(content, file_path, report_unknown)
     except Exception as e:
-        logging.info(f"Error reading file {file_path}: {e}")
+        logging.error(f"Error reading file {file_path}: {e}")
 
-def process_content(content: str, file_path: str):
+def process_content(content: str, file_path: str, report_unknown=False):
     """ Process the content of a file for valid credit card numbers. """
     potential_cards = find_potential_card_numbers(content)
     for card in potential_cards:
         if is_luhn_valid(card):
             card_type = get_card_type(card)
-            logging.info(f"Valid {card_type} card number found in {file_path}: {card}")
+            if card_type != "Unknown" or report_unknown:
+                logging.warning(f"Valid {card_type} card number ({card}) found in {file_path}")
 
-def scan_directory(path: str, use_chunk_method=False):
+def scan_directory(path: str, use_chunk_method=False, report_unknown=False):
     """ Recursively scan a directory for files and analyze each file. """
     ignored_directories = {'/proc', '/sys', '/dev', '/var/log/journal', '/boot', '/tmp', '/var/tmp', '/lost+found', '/mnt', '/media', '/usr', '/bin', '/sbin', '/lib', '/lib64'}
     """
@@ -166,11 +167,14 @@ def scan_directory(path: str, use_chunk_method=False):
         if any(ignored_dir in root for ignored_dir in ignored_directories):
             continue
         for file in files:
-            scan_file(os.path.join(root, file), use_chunk_method)
+            scan_file(os.path.join(root, file), use_chunk_method, report_unknown)
 
-""" MAIN """
 if __name__ == "__main__":
-    """ Print the IP and Hostname """
     get_system_info()
     use_chunk_method = '-chunk' in sys.argv
-    scan_directory('/', use_chunk_method=use_chunk_method)
+    report_unknown_cards = '-unknown' in sys.argv
+    logging.debug(f"Command line arguments passed:")
+    logging.debug(f"Chunk: {use_chunk_method}")
+    logging.debug(f"Report unknown cards: {report_unknown_cards}")
+    logging.debug("-" * 30)
+    scan_directory('/', use_chunk_method=use_chunk_method, report_unknown=report_unknown_cards)
