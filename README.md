@@ -5,14 +5,14 @@ This script is **quite basic** and may need further optimization for efficiency 
 The goal of this scanner is to help conform to:
 
 ## PCI DSS 3.2.1 control 3.2.1
-which states "For a sample of system components, examine data sources including but not limited to the following, and verify that the full contents of any track from the magnetic stripe on the back of card or equivalent data on a chip are not stored after authorization:
-• Incoming transaction data
-• All logs (for example, transaction, history, debugging, error)
-• History files
-• Trace files
-• Several database schemas
-• Database contents."
-It's important to note that the script only manages plain text files, and not `.docx`, `.pdf`, or `.rtf` files or databases, and other more capable (and probably costly) tools would be required for this.
+which states "For a sample of system components, examine data sources including but not limited to the following, and verify that the full contents of any track from the magnetic stripe on the back of card or equivalent data on a chip are not stored after authorization:  
+• Incoming transaction data  
+• All logs (for example, transaction, history, debugging, error)  
+• History files  
+• Trace files  
+• Several database schemas  
+• Database contents."  
+🧠 It's important to note that the script only manages plain text files, and not `.docx`, `.pdf`, or `.rtf` files or databases, and other more capable (and probably costly) tools would be required for this.
 
 ## PCI DSS 3.2.1 control A3.2.5 
 which states "Implement a data-discovery methodology to confirm PCI DSS scope and to locate all sources and locations of clear-text PAN at least quarterly and upon significant changes to the cardholder environment or processes.
