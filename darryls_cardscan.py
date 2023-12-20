@@ -79,10 +79,16 @@ def find_potential_card_numbers(s: str) -> List[str]:
     potential_cards = re.findall(r'\b(?:\d[ -]*?){13,19}\b', s)
     return [''.join(filter(str.isdigit, card)) for card in potential_cards]
 
+""" This is our list of ignored file extensions """
+ignored_extensions = {'.pdf', '.docx', '.bin', '.exe', '.dll', '.zip', '.rar', '.gz'}  # Add more as needed
+
 def scan_file(file_path: str):
     """ Scan a single file for valid credit card numbers. """
     """ Skip the log file that we create """
     if file_path.endswith(log_file_path):
+        return
+    if file_path.lower().endswith(tuple(ignored_extensions)):
+        logging.info(f"Skipping file: {file_path}")
         return
     logging.info(f"Opening file: {file_path}")
     try:
@@ -101,6 +107,9 @@ def scan_file_chunk(file_path: str):
     """ Scan a single file for valid credit card numbers by reading in chunks. """
     """ Skip the log file that we create """
     if file_path.endswith(log_file_path):
+        return
+    if file_path.lower().endswith(tuple(ignored_extensions)):
+        logging.info(f"Skipping file: {file_path}")
         return
     logging.info(f"Opening file: {file_path}")
     chunk_size = 1024 * 1024  # Size of each chunk in bytes (1MB in this example)
