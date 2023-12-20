@@ -12,6 +12,16 @@ You should test this script thoroughly in a controlled environment before consid
 # Usage
 `python3 darryls_cardscan.py`
 
+# Tuning
+## False Positive Credit Card Numbers
+Inside the `is_luhn_valid` function, you can modify the `false_positive_numbers` variable of known false postive credit card numbers. (Default: '0000000000000000', '00000000000000', '000000000000000000')
+
+## Ignored file types
+Just above the `scan_file` function, you can modify the `ignored_extensions` variable of ignored file types (Default: '.pdf', '.docx', '.bin', '.exe', '.dll', '.zip', '.rar', '.gz')
+
+## Ignored directories
+Inside the `scan_directory` you can modify the `ignored_directories` variable (Default: '/proc', '/sys', '/dev', '/var/log/journal', '/boot', '/tmp', '/var/tmp', '/lost+found', '/mnt', '/media', '/usr', '/bin', '/sbin', '/lib', '/lib64')
+
 # Known issues
 
 ## Memory Consumption with Large Files
