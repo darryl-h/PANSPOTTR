@@ -6,9 +6,24 @@ import socket
 import requests
 from typing import List
 
-""" Setup Logging """
+""" Configure logging to file with DEBUG level """
 log_file_path = 'darryls_scan.log'
-logging.basicConfig(filename=log_file_path, level=logging.INFO, format='%(asctime)s - %(message)s')
+file_handler = logging.FileHandler(log_file_path, mode='a')
+file_handler.setLevel(logging.DEBUG)
+file_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+file_handler.setFormatter(file_formatter)
+
+""" Configure logging to console with INFO level """
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.INFO)
+console_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+console_handler.setFormatter(console_formatter)
+
+""" Create a logger and add both handlers """
+logger = logging.getLogger('')
+logger.setLevel(logging.DEBUG)
+logger.addHandler(file_handler)
+logger.addHandler(console_handler)
 
 def get_free_memory():
     """ Get the amount of free memory in MB from /proc/meminfo. """
@@ -45,17 +60,11 @@ def get_system_info():
     lan_ip = get_lan_ip()
     external_ip = get_external_ip()
     free_memory = get_free_memory()
-    print("-" * 30)
     logging.info("-" * 30)
-    print(f"Hostname: {hostname}")
     logging.info(f"Hostname: {hostname}")
-    print(f"LAN IP Address: {lan_ip if lan_ip else 'Not available'}")
     logging.info(f"LAN IP Address: {lan_ip if lan_ip else 'Not available'}")
-    print(f"External IP Address: {external_ip if external_ip else 'Not available'}")
     logging.info(f"External IP Address: {external_ip if external_ip else 'Not available'}")
-    print(f"Free Memory: {free_memory:.2f} MB" if free_memory is not None else "Free Memory: Not available")
     logging.info(f"Free Memory: {free_memory:.2f} MB" if free_memory is not None else "Free Memory: Not available")
-    print("-" * 30)
     logging.info("-" * 30)
 
 def is_luhn_valid(card_number: str) -> bool:
@@ -114,7 +123,7 @@ def scan_file(file_path: str, use_chunk_method=False):
         logging.info(f"Skipping file: {file_path}")
         return
 
-    logging.info(f"Opening file: {file_path}")
+    logging.debug(f"Opening file: {file_path}")
     try:
         if use_chunk_method:
             chunk_size = 1024 * 1024  # Size of each chunk in bytes (1MB in this example)
@@ -129,7 +138,6 @@ def scan_file(file_path: str, use_chunk_method=False):
                 content = file.read()
                 process_content(content, file_path)
     except Exception as e:
-        print(f"Error reading file {file_path}: {e}")
         logging.info(f"Error reading file {file_path}: {e}")
 
 def process_content(content: str, file_path: str):
@@ -138,7 +146,6 @@ def process_content(content: str, file_path: str):
     for card in potential_cards:
         if is_luhn_valid(card):
             card_type = get_card_type(card)
-            print(f"Valid {card_type} card number found in {file_path}: {card}")
             logging.info(f"Valid {card_type} card number found in {file_path}: {card}")
 
 def scan_directory(path: str, use_chunk_method=False):
@@ -165,9 +172,5 @@ def scan_directory(path: str, use_chunk_method=False):
 if __name__ == "__main__":
     """ Print the IP and Hostname """
     get_system_info()
-    """ Print the free memory """
-    free_memory = get_free_memory()
-    if free_memory is not None:
-        print(f"Free memory available: {free_memory:.2f} MB")
     use_chunk_method = '-chunk' in sys.argv
     scan_directory('/', use_chunk_method=use_chunk_method)
