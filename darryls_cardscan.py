@@ -151,7 +151,7 @@ def process_content(content: str, file_path: str, report_unknown=False):
 
 def scan_directory(path: str, use_chunk_method=False, report_unknown=False):
     """ Recursively scan a directory for files and analyze each file. """
-    ignored_directories = {'/proc', '/sys', '/dev', '/var/log/journal', '/boot', '/tmp', '/var/tmp', '/lost+found', '/mnt', '/media', '/usr', '/bin', '/sbin', '/lib', '/lib64'}
+    ignored_directories = {'/proc', '/sys', '/dev', '/var/log/journal', '/boot', '/tmp', '/var/tmp', '/lost+found', '/mnt', '/media', '/usr', '/bin', '/sbin', '/lib', '/lib64', '/run', '/srv', '/opt'}
     """
     /sys and /proc: Virtual filesystems providing windows into kernel internals.
     /dev: Contains device files and is not a typical location for stored user data.
@@ -161,6 +161,9 @@ def scan_directory(path: str, use_chunk_method=False, report_unknown=False):
     /mnt and /media: Mount points for temporary mounts and removable media. Scanning here might not be useful, especially if these directories are used for mounting external resources that don't need to be scanned.
     /usr: Contains the majority of user utilities and applications. While there's a possibility of stored data in subdirectories like /usr/local, most contents are static application files.
     /bin, /sbin, /lib, /lib64: Contain binary executables and libraries essential for the system's operation. These directories are unlikely to contain user data.
+    /run: runtime data for the system and processes.
+    /srv: Contains data for services provided by the system.
+    /opt: Used for the installation of add-on application software packages. Contains mostly static application files.
     """
     for root, dirs, files in os.walk(path):
         """ Skip ignored directories """
