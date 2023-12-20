@@ -27,7 +27,7 @@ Data-discovery methodology must take into consideration the potential for clear-
 * **False Positives/Negatives**: The script uses basic pattern matching which might not be accurate for all cases. It may produce false positives or miss some valid card numbers.  
 * **File Types**: This script is basic and reads files as plain text. It doesn't handle binary files or specific formats like PDFs or Word documents.
 
-You should test this script thoroughly in a controlled environment before considering using it in a production scenario.
+⚠ You should test this script thoroughly in a controlled environment before considering using it in a production scenario.
 
 # Usage
 `python3 darryls_cardscan.py`
