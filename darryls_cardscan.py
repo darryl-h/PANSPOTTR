@@ -74,6 +74,30 @@ def is_luhn_valid(card_number: str) -> bool:
         checksum += sum(digits_of(d*2))
     return checksum % 10 == 0
 
+def get_card_type(card_number: str) -> str:
+    """ Determine the credit card type based on the card number. """
+    card_type = "Unknown"
+    first_digit = card_number[0]
+    first_two_digits = card_number[:2]
+    first_four_digits = card_number[:4]
+    first_six_digits = int(card_number[:6])
+
+    if len(card_number) >= 13:
+        if first_two_digits in ["34", "37"]:
+            card_type = "American Express"
+        elif first_four_digits in ["6011"] or (644 <= first_six_digits <= 649) or first_two_digits == "65":
+            card_type = "Discover"
+        elif 3528 <= first_six_digits <= 3589:
+            card_type = "JCB"
+        elif 51 <= int(first_two_digits) <= 55:
+            card_type = "Mastercard"
+        elif 622126 <= first_six_digits <= 622925 or 624000 <= first_six_digits <= 626999 or 628200 <= first_six_digits <= 628899:
+            card_type = "UnionPay"
+        elif first_digit == "4":
+            card_type = "Visa"
+
+    return card_type
+
 def find_potential_card_numbers(s: str) -> List[str]:
     """ Find potential card numbers using regex. Assumes numbers are separated by non-numeric characters. """
     potential_cards = re.findall(r'\b(?:\d[ -]*?){13,19}\b', s)
@@ -97,8 +121,9 @@ def scan_file(file_path: str):
             potential_cards = find_potential_card_numbers(content)
             for card in potential_cards:
                 if is_luhn_valid(card):
-                    print(f"Valid card number found in {file_path}: {card}")
-                    logging.info(f"Valid card number found in {file_path}: {card}")
+                    card_type = get_card_type(card)
+                    print(f"Valid {card_type} card number found in {file_path}: {card}")
+                    logging.info(f"Valid {card_type} card number found in {file_path}: {card}")
     except Exception as e:
         print(f"Error reading file {file_path}: {e}")
         logging.info(f"Error reading file {file_path}: {e}")
@@ -123,8 +148,9 @@ def scan_file_chunk(file_path: str):
                 potential_cards = find_potential_card_numbers(chunk)
                 for card in potential_cards:
                     if is_luhn_valid(card):
-                        print(f"Valid card number found in {file_path}: {card}")
-                        logging.info(f"Valid card number found in {file_path}: {card}")
+                        card_type = get_card_type(card)
+                        print(f"Valid {card_type} card number found in {file_path}: {card}")
+                        logging.info(f"Valid {card_type} card number found in {file_path}: {card}")
     except Exception as e:
         print(f"Error reading file {file_path}: {e}")
         logging.info(f"Error reading file {file_path}: {e}")
