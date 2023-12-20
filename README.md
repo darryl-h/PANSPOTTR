@@ -1,6 +1,10 @@
 # Darryl's CardScanner
 This script is **quite basic** and may need further optimization for efficiency and accuracy, especially in handling large files or different file formats. Also, running this script on a system could consume significant resources, depending on the amount of data to be scanned.
 
+# Goals
+The goal of this scanner is to conform to PCI DSS 3.2.1 control A3.2.5 which states "Implement a data-discovery methodology to confirm PCI DSS scope and to locate all sources and locations of clear-text PAN at least quarterly and upon significant changes to the cardholder environment or processes.
+Data-discovery methodology must take into consideration the potential for clear-text PAN to reside on systems and networks outside of the currently defined CDE."
+
 # Considerations
 * **Privacy and Security**: Scanning for credit card data can have legal and privacy implications. Ensure you have the proper authorization and comply with relevant laws and regulations.  
 * **Performance**: This script may take a significant amount of time and resources to run, especially on large file systems.  
