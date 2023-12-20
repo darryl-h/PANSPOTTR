@@ -2,7 +2,7 @@
 This script is **quite basic** and may need further optimization for efficiency and accuracy, especially in handling large files or different file formats. Also, running this script on a system could consume significant resources, depending on the amount of data to be scanned.
 
 # Limitations
-* The script only manages plain text files, and not `.docx`, `.pdf`, or `.rtf` document files or `databases`, and other more capable (and probably costly) tools would be required for this.  
+⚠ The script only manages plain text files, and not `.docx`, `.pdf`, or `.rtf` document files or `databases`, and other more capable (and probably costly) tools would be required for this.  
 🧠 While it's possible to impliment the parsing of .docx using a library like docx, .pdf using a library like PyPDF2, or .rtf using a library like rtf_to_text files, it would come at the cost of chunking files which are not possible easily with these files types. This script is optomized for low memory usage to reduce the impact to systems.
 
 # Goals
@@ -16,8 +16,6 @@ which states "For a sample of system components, examine data sources including 
 • Trace files  
 • Several database schemas  
 • Database contents."  
-🧠 It's important to note that the script only manages plain text files, and not `.docx`, `.pdf`, or `.rtf` files or databases, and other more capable (and probably costly) tools would be required for this.  
-🧠 While it's possible to impliment the parsing of `.docx` using a library like `docx`, `.pdf` using a library like `PyPDF2`, or `.rtf` using a library like `rtf_to_text` files, it would come at the cost of chunking files which are not possible easily with these files types. This script is optomized for low memory usage to reduce the impact to systems.
 
 ## PCI DSS 3.2.1 control A3.2.5 
 which states "Implement a data-discovery methodology to confirm PCI DSS scope and to locate all sources and locations of clear-text PAN at least quarterly and upon significant changes to the cardholder environment or processes.
