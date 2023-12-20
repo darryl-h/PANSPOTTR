@@ -106,54 +106,40 @@ def find_potential_card_numbers(s: str) -> List[str]:
 """ This is our list of ignored file extensions """
 ignored_extensions = {'.pdf', '.docx', '.bin', '.exe', '.dll', '.zip', '.rar', '.gz'}  # Add more as needed
 
-def scan_file(file_path: str):
-    """ Scan a single file for valid credit card numbers. """
-    """ Skip the log file that we create """
+def scan_file(file_path: str, use_chunk_method=False):
+    """ Scan a single file for valid credit card numbers, with optional chunking. """
     if file_path.endswith(log_file_path):
         return
     if file_path.lower().endswith(tuple(ignored_extensions)):
         logging.info(f"Skipping file: {file_path}")
         return
+
     logging.info(f"Opening file: {file_path}")
     try:
-        with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
-            content = file.read()
-            potential_cards = find_potential_card_numbers(content)
-            for card in potential_cards:
-                if is_luhn_valid(card):
-                    card_type = get_card_type(card)
-                    print(f"Valid {card_type} card number found in {file_path}: {card}")
-                    logging.info(f"Valid {card_type} card number found in {file_path}: {card}")
+        if use_chunk_method:
+            chunk_size = 1024 * 1024  # Size of each chunk in bytes (1MB in this example)
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
+                while True:
+                    chunk = file.read(chunk_size)
+                    if not chunk:
+                        break
+                    process_content(chunk, file_path)
+        else:
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
+                content = file.read()
+                process_content(content, file_path)
     except Exception as e:
         print(f"Error reading file {file_path}: {e}")
         logging.info(f"Error reading file {file_path}: {e}")
 
-def scan_file_chunk(file_path: str):
-    """ Scan a single file for valid credit card numbers by reading in chunks. """
-    """ Skip the log file that we create """
-    if file_path.endswith(log_file_path):
-        return
-    if file_path.lower().endswith(tuple(ignored_extensions)):
-        logging.info(f"Skipping file: {file_path}")
-        return
-    logging.info(f"Opening file: {file_path}")
-    chunk_size = 1024 * 1024  # Size of each chunk in bytes (1MB in this example)
-    try:
-        with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
-            while True:
-                chunk = file.read(chunk_size)
-                if not chunk:  # Break if no more data
-                    break
-
-                potential_cards = find_potential_card_numbers(chunk)
-                for card in potential_cards:
-                    if is_luhn_valid(card):
-                        card_type = get_card_type(card)
-                        print(f"Valid {card_type} card number found in {file_path}: {card}")
-                        logging.info(f"Valid {card_type} card number found in {file_path}: {card}")
-    except Exception as e:
-        print(f"Error reading file {file_path}: {e}")
-        logging.info(f"Error reading file {file_path}: {e}")
+def process_content(content: str, file_path: str):
+    """ Process the content of a file for valid credit card numbers. """
+    potential_cards = find_potential_card_numbers(content)
+    for card in potential_cards:
+        if is_luhn_valid(card):
+            card_type = get_card_type(card)
+            print(f"Valid {card_type} card number found in {file_path}: {card}")
+            logging.info(f"Valid {card_type} card number found in {file_path}: {card}")
 
 def scan_directory(path: str, use_chunk_method=False):
     """ Recursively scan a directory for files and analyze each file. """
@@ -168,13 +154,12 @@ def scan_directory(path: str, use_chunk_method=False):
     /usr: Contains the majority of user utilities and applications. While there's a possibility of stored data in subdirectories like /usr/local, most contents are static application files.
     /bin, /sbin, /lib, /lib64: Contain binary executables and libraries essential for the system's operation. These directories are unlikely to contain user data.
     """
-    scan_method = scan_file_chunk if use_chunk_method else scan_file
     for root, dirs, files in os.walk(path):
         """ Skip ignored directories """
         if any(ignored_dir in root for ignored_dir in ignored_directories):
             continue
         for file in files:
-            scan_method(os.path.join(root, file))
+            scan_file(os.path.join(root, file), use_chunk_method)
 
 """ MAIN """
 if __name__ == "__main__":
