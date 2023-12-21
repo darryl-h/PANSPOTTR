@@ -7,7 +7,7 @@ import requests
 from typing import List
 
 """ Configure logging to file with DEBUG level """
-log_file_path = 'darryls_scan.log'
+log_file_path = 'panscan.log'
 file_handler = logging.FileHandler(log_file_path, mode='a')
 file_handler.setLevel(logging.DEBUG)
 file_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
