@@ -115,7 +115,7 @@ def find_potential_card_numbers(s: str) -> List[str]:
 """ This is our list of ignored file extensions """
 ignored_extensions = {'.pdf', '.docx', '.bin', '.exe', '.dll', '.zip', '.rar', '.gz'}  # Add more as needed
 
-def scan_file(file_path: str, use_chunk_method=False, report_unknown=False):
+def scan_file(file_path: str, use_basic_method=False, report_unknown=False):
     """ Scan a single file for valid credit card numbers, with optional chunking. """
     if file_path.endswith(log_file_path):
         return
@@ -125,7 +125,7 @@ def scan_file(file_path: str, use_chunk_method=False, report_unknown=False):
 
     logging.debug(f"Opening file: {file_path}")
     try:
-        if use_chunk_method:
+        if use_basic_method:
             chunk_size = 1024 * 1024  # Size of each chunk in bytes (1MB in this example)
             with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
                 while True:
@@ -149,7 +149,7 @@ def process_content(content: str, file_path: str, report_unknown=False):
             if card_type != "Unknown" or report_unknown:
                 logging.warning(f"Valid {card_type} card number ({card}) found in {file_path}")
 
-def scan_directory(path: str, use_chunk_method=False, report_unknown=False):
+def scan_directory(path: str, use_basic_method=False, report_unknown=False):
     """ Recursively scan a directory for files and analyze each file. """
     ignored_directories = {'/proc', '/sys', '/dev', '/var/log/journal', '/boot', '/tmp', '/var/tmp', '/lost+found', '/mnt', '/media', '/usr', '/bin', '/sbin', '/lib', '/lib64', '/run', '/srv', '/opt'}
     """
@@ -170,14 +170,14 @@ def scan_directory(path: str, use_chunk_method=False, report_unknown=False):
         if any(ignored_dir in root for ignored_dir in ignored_directories):
             continue
         for file in files:
-            scan_file(os.path.join(root, file), use_chunk_method, report_unknown)
+            scan_file(os.path.join(root, file), use_basic_method, report_unknown)
 
 if __name__ == "__main__":
     get_system_info()
-    use_chunk_method = '-chunk' in sys.argv
+    use_basic_method = '-basic' in sys.argv
     report_unknown_cards = '-unknown' in sys.argv
     logging.debug(f"Command line arguments passed:")
-    logging.debug(f"Chunk: {use_chunk_method}")
+    logging.debug(f"Basic: {use_basic_method}")
     logging.debug(f"Report unknown cards: {report_unknown_cards}")
     logging.debug("-" * 30)
-    scan_directory('/', use_chunk_method=use_chunk_method, report_unknown=report_unknown_cards)
+    scan_directory('/', use_basic_method=use_basic_method, report_unknown=report_unknown_cards)
