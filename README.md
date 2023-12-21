@@ -32,7 +32,7 @@ Data-discovery methodology must take into consideration the potential for clear-
 ⚠ You should test this script thoroughly in a controlled environment before considering using it in a production scenario.
 
 # Usage
-`python3 darryls_cardscan.py`
+`python3 panscan.py`
 
 # Tuning
 ## False Positive Credit Card Numbers
