@@ -1,9 +1,11 @@
-# Darryl's CardScanner
+# PanScan
+Developed as a labor of love over a few intense hours, this script stands as a testament to the power of focused creativity and dedication. It wasn't designed to compete with commercial giants or even the more polished open-source solutions in the market. Instead, it was born out of a passion for problem-solving and a desire to contribute a meaningful tool to the community. This script is a humble yet earnest effort to address a specific need, crafted not for profit or fame but for the sheer joy of creation and utility. It's a reminder that sometimes, the most sincere and impactful solutions come from simple beginnings and a heart driven by genuine intent.
+
 This script is **quite basic** and may need further optimization for efficiency and accuracy, especially in handling large files or different file formats. Also, running this script on a system could consume significant resources, depending on the amount of data to be scanned.
 
 # Limitations
-⚠ The script only manages plain text files, and not `.docx`, `.pdf`, or `.rtf` document files or `databases`, and other more capable (and probably costly) tools would be required for this.  
-🧠 While it's possible to impliment the parsing of `.docx` using a library like `docx`, `.pdf` using a library like `PyPDF2`, or `.rtf` using a library like `rtf_to_text` files, it would come at the cost of chunking files which are not possible easily with these files types. This script is optomized for low memory usage to reduce the impact to systems.
+⚠ The script only manages plain text files, and not `.docx`, `.pdf`, or `.rtf` document files or `databases`.  
+🧠 While it's possible to impliment the parsing of `.docx` using a library like `docx`, `.pdf` using a library like `PyPDF2`, or `.rtf` using a library like `rtf_to_text` files, it would come at the cost of additional dependanices as well as chunking files which are not possible easily with these files types. This script is optomized for low memory usage to reduce the impact to systems.
 
 # Goals
 The goal of this scanner is to help conform to:
