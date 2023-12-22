@@ -38,10 +38,10 @@ Data-discovery methodology must take into consideration the potential for clear-
 Inside the `is_luhn_valid` function, you can modify the `false_positive_numbers` variable of known false postive credit card numbers. (Default: '0000000000000000', '00000000000000', '000000000000000000')
 
 ## Ignored file types
-Just above the `scan_file` function, you can modify the `ignored_extensions` variable of ignored file types (Default: '.pdf', '.docx', '.bin', '.exe', '.dll', '.zip', '.rar', '.gz')
+At the top of the script, you can modify the `basic_ignored_extensions` variable of ignored file types (Default: '.bin', '.exe', '.dll', '.zip', '.rar', '.gz')
 
 ## Ignored directories
-Inside the `scan_directory` you can modify the `ignored_directories` variable (Default: '/proc', '/sys', '/dev', '/var/log/journal', '/boot', '/tmp', '/var/tmp', '/lost+found', '/mnt', '/media', '/usr', '/bin', '/sbin', '/lib', '/lib64')
+Inside the `scan_directory` function you can modify the `ignored_directories` variable (Default: '/proc', '/sys', '/dev', '/var/log/journal', '/boot', '/tmp', '/var/tmp', '/lost+found', '/mnt', '/media', '/usr', '/bin', '/sbin', '/lib', '/lib64', '/run', '/srv', '/opt')
 
 # Known issues
 
