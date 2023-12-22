@@ -6,6 +6,31 @@ import socket
 import requests
 from typing import List
 
+
+# Determine if the script is running in basic mode
+use_basic_method = '-basic' in sys.argv
+
+# Set of basic ignored file extensions
+basic_ignored_extensions = {'.bin', '.exe', '.dll', '.zip', '.rar', '.gz'}
+
+# Additional file types to ignore in basic mode
+additional_ignored_extensions = {'.pdf', '.docx', '.rtf'}
+
+# Conditional import for additional file types
+if not use_basic_method:
+    try:
+        import docx
+        from PyPDF2 import PdfReader
+    except ImportError as e:
+        missing_library = str(e).split("'")[1]  # Extract the name of the missing library
+        if missing_library == 'docx':
+            print("The 'python-docx' library is required but not installed.")
+            print("Install it using the command: pip3 install python-docx")
+        elif missing_library == 'PyPDF2':
+            print("The 'PyPDF2' library is required but not installed.")
+            print("Install it using the command: pip3 install PyPDF2")
+        sys.exit(1)
+
 """ Configure logging to file with DEBUG level """
 log_file_path = 'panscan.log'
 file_handler = logging.FileHandler(log_file_path, mode='a')
@@ -67,6 +92,23 @@ def get_system_info():
     logging.info(f"Free Memory: {free_memory:.2f} MB" if free_memory is not None else "Free Memory: Not available")
     logging.info("-" * 30)
 
+""" File type specific reading functions """
+def read_docx(file_path):
+    doc = docx.Document(file_path)
+    return "\n".join([para.text for para in doc.paragraphs])
+
+def read_pdf(file_path):
+    content = ""
+    with open(file_path, "rb") as file:
+        reader = PdfReader(file)
+        for page in reader.pages:
+            content += page.extract_text()  # Use extract_text instead of extractText
+    return content
+
+def read_rtf(file_path):
+    with open(file_path, "r", encoding='utf-8', errors='ignore') as file:
+        return file.read()
+
 def is_luhn_valid(card_number: str) -> bool:
     """ Check if the card number is valid based on Luhn's algorithm. """
     """ Remove any known false positives """
@@ -115,28 +157,46 @@ def find_potential_card_numbers(s: str) -> List[str]:
 """ This is our list of ignored file extensions """
 ignored_extensions = {'.pdf', '.docx', '.bin', '.exe', '.dll', '.zip', '.rar', '.gz'}  # Add more as needed
 
-def scan_file(file_path: str, use_basic_method=False, report_unknown=False):
-    """ Scan a single file for valid credit card numbers, with optional chunking. """
+def scan_file(file_path: str, report_unknown=False):
+    """ Scan a single file for valid credit card numbers. """
     if file_path.endswith(log_file_path):
         return
+
+    # Update the ignored extensions based on the mode
+    ignored_extensions = basic_ignored_extensions.copy()
+    if use_basic_method:
+        ignored_extensions.update(additional_ignored_extensions)
+
     if file_path.lower().endswith(tuple(ignored_extensions)):
         logging.debug(f"Skipping file: {file_path}")
         return
 
     logging.debug(f"Opening file: {file_path}")
     try:
-        if use_basic_method:
+        content = ''
+        if not use_basic_method:
+            # Process special file types
+            if file_path.lower().endswith('.docx'):
+                content = read_docx(file_path)
+            elif file_path.lower().endswith('.pdf'):
+                content = read_pdf(file_path)
+            elif file_path.lower().endswith('.rtf'):
+                content = read_rtf(file_path)
+            else:
+                with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
+                    content = file.read()
+        else:
             chunk_size = 1024 * 1024  # Size of each chunk in bytes (1MB in this example)
             with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
                 while True:
                     chunk = file.read(chunk_size)
                     if not chunk:
                         break
-                    process_content(chunk, file_path)
-        else:
-            with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
-                content = file.read()
-                process_content(content, file_path, report_unknown)
+                    process_content(chunk, file_path, report_unknown)
+
+        if content:
+            process_content(content, file_path, report_unknown)
+
     except Exception as e:
         logging.error(f"Error reading file {file_path}: {e}")
 
@@ -149,7 +209,7 @@ def process_content(content: str, file_path: str, report_unknown=False):
             if card_type != "Unknown" or report_unknown:
                 logging.warning(f"Valid {card_type} card number ({card}) found in {file_path}")
 
-def scan_directory(path: str, use_basic_method=False, report_unknown=False):
+def scan_directory(path: str, report_unknown=False):
     """ Recursively scan a directory for files and analyze each file. """
     ignored_directories = {'/proc', '/sys', '/dev', '/var/log/journal', '/boot', '/tmp', '/var/tmp', '/lost+found', '/mnt', '/media', '/usr', '/bin', '/sbin', '/lib', '/lib64', '/run', '/srv', '/opt'}
     """
@@ -170,14 +230,13 @@ def scan_directory(path: str, use_basic_method=False, report_unknown=False):
         if any(ignored_dir in root for ignored_dir in ignored_directories):
             continue
         for file in files:
-            scan_file(os.path.join(root, file), use_basic_method, report_unknown)
+            scan_file(os.path.join(root, file), report_unknown)
 
 if __name__ == "__main__":
     get_system_info()
-    use_basic_method = '-basic' in sys.argv
     report_unknown_cards = '-unknown' in sys.argv
     logging.debug(f"Command line arguments passed:")
     logging.debug(f"Basic: {use_basic_method}")
     logging.debug(f"Report unknown cards: {report_unknown_cards}")
     logging.debug("-" * 30)
-    scan_directory('/', use_basic_method=use_basic_method, report_unknown=report_unknown_cards)
+    scan_directory('/', report_unknown=report_unknown_cards)
