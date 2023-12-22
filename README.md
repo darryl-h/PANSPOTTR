@@ -1,4 +1,4 @@
-# PanScan
+# Primary Account Number Scanning, Protection, Observation & Threat Tracking Reporter (PANSPOTTR)
 Developed as a labor of love over a few intense hours, this script stands as a testament to the power of focused creativity and dedication. It wasn't designed to compete with commercial giants or even the more polished open-source solutions in the market. Instead, it was born out of a passion for problem-solving and a desire to contribute a meaningful tool to the community. This script is a humble yet earnest effort to address a specific need, crafted not for profit or fame but for the sheer joy of creation and utility. It's a reminder that sometimes, the most sincere and impactful solutions come from simple beginnings and a heart driven by genuine intent.
 
 This script is **quite basic** and may need further optimization for efficiency and accuracy, especially in handling large files or different file formats. Also, running this script on a system could consume significant resources, depending on the amount of data to be scanned.
@@ -31,7 +31,7 @@ Data-discovery methodology must take into consideration the potential for clear-
 ⚠ You should test this script thoroughly in a controlled environment before considering using it in a production scenario.
 
 # Usage
-`python3 panscan.py`
+`python3 panspottr.py`
 
 # Tuning
 ## False Positive Credit Card Numbers
