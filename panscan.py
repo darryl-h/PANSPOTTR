@@ -1,3 +1,11 @@
+__author__ = "Darryl H"
+__copyright__ = "Copyright 2023, Darryl H"
+__credits__ = ["Darryl H"]
+__license__ = "GPL"
+__version__ = "1.0.1"
+__maintainer__ = "Darryl H"
+__status__ = "Production"
+
 import os
 import re
 import logging
