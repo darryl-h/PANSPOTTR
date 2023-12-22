@@ -14,7 +14,6 @@ import socket
 import requests
 from typing import List
 
-
 # Determine if the script is running in basic mode
 use_basic_method = '-basic' in sys.argv
 
@@ -89,6 +88,15 @@ def get_external_ip():
 
 def get_system_info():
     """ Get system information including hostname, local IP, external IP, and free memory. """
+    banner = """
+                      ___  _   _  _ ___ ___  ___ _____ _____ ___ 
+                     | _ \/_\ | \| / __| _ \/ _ \_   _|_   _| _ \\
+                     |  _/ _ \| .` \__ \  _/ (_) || |   | | |   /
+                     |_|/_/ \_\_|\_|___/_|  \___/ |_|   |_| |_|_\\                     
+     Primary Account Number Scanning, Protection, Observation & Threat Tracking Reporter
+             Version {}   By: Darryl-h (https://github.com/darryl-h/)
+    """.format(__version__)
+    logging.info(banner)
     hostname = socket.gethostname()
     lan_ip = get_lan_ip()
     external_ip = get_external_ip()
