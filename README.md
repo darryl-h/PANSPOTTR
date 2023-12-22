@@ -4,7 +4,7 @@ Developed as a labor of love over a few intense hours, this script stands as a t
 This script is **quite basic** and may need further optimization for efficiency and accuracy, especially in handling large files or different file formats. Also, running this script on a system could consume significant resources, depending on the amount of data to be scanned.
 
 # Limitations
-⚠ The script does not manage `databases`.  
+⚠ The script does not scan `databases`.
 
 # Goals
 The goal of this scanner is to help conform to:
