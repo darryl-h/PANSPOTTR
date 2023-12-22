@@ -4,8 +4,7 @@ Developed as a labor of love over a few intense hours, this script stands as a t
 This script is **quite basic** and may need further optimization for efficiency and accuracy, especially in handling large files or different file formats. Also, running this script on a system could consume significant resources, depending on the amount of data to be scanned.
 
 # Limitations
-⚠ The script only manages plain text files, and not `.docx`, `.pdf`, or `.rtf` document files or `databases`.  
-🧠 While it's possible to impliment the parsing of `.docx` using a library like `docx`, `.pdf` using a library like `PyPDF2`, or `.rtf` using a library like `rtf_to_text` files, it would come at the cost of additional dependanices as well as chunking files which are not possible easily with these files types. This script is optomized for low memory usage to reduce the impact to systems.
+⚠ The script does not manage `databases`.  
 
 # Goals
 The goal of this scanner is to help conform to:
@@ -56,8 +55,8 @@ To confirm this, you can check the system logs for out-of-memory (OOM) messages.
 ```
 If you encounter this issue, consider:  
 1. Running the script on a system with more available memory.  
-2. Adding `-chunk` to the command line.  
-   Do note that this will lower accuracy because reading in 1MB chunks can split a credit card number across two chunks. This may also increase the time it takes to run.
+2. Adding `-basic` to the command line.  
+   Do note that this will lower accuracy because reading in 1MB chunks can split a credit card number across two chunks. This may also increase the time it takes to run, this will also cause the script to SKIP `.docx`, `.pdf` and `.rtf` files.
 
 # LEGAL DISCLAIMER
 The provided script ("Software") is offered "AS IS" without any warranty of any kind, either expressed or implied, including, but not limited to, the implied warranties of merchantability, fitness for a particular purpose, and non-infringement.
