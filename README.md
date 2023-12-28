@@ -7,6 +7,8 @@ This script is **quite basic** and may need further optimization for efficiency 
 ⚠ The script does not scan `databases`.
 
 # Goals
+Work with modern versions of Python (Tested on Python 3.8.10)
+
 The goal of this scanner is to help conform to:
 
 ## PCI DSS 3.2.1 control 3.2.1
