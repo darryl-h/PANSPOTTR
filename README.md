@@ -33,6 +33,11 @@ Data-discovery methodology must take into consideration the potential for clear-
 # Usage
 `python3 panspottr.py`
 
+## Arguments
+`--basic` - Enable basic scanning mode (Low memory, reduced file types)  
+`--path` - Specify path to scan  
+`--unknown` - Report unknown card types  
+
 # Tuning
 ## False Positive Credit Card Numbers
 Inside the `is_luhn_valid` function, you can modify the `false_positive_numbers` variable of known false postive credit card numbers. (Default: '0000000000000000', '00000000000000', '000000000000000000')
