@@ -2,7 +2,7 @@ __author__ = "Darryl H"
 __copyright__ = "Copyright 2023, Darryl H"
 __credits__ = ["Darryl H"]
 __license__ = "GPL"
-__version__ = "20231228B"
+__version__ = "20231228C"
 __maintainer__ = "Darryl H"
 __status__ = "Production"
 
@@ -67,7 +67,7 @@ def parse_arguments():
     Returns:
         argparse.Namespace: An object containing parsed command line arguments.
     """
-    parser = argparse.ArgumentParser(description="PANalysis Tool for Scanning and Reporting")
+    parser = argparse.ArgumentParser(description="Primary Account Number Scanning, Protection, Observation & Threat Tracking Reporter")
     parser.add_argument('-basic', action='store_true', help='Enable basic scanning mode')
     parser.add_argument('-unknown', action='store_true', help='Report unknown card types')
     parser.add_argument('-p', '--path', type=str, default='/', help='Specify path to scan')
