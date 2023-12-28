@@ -2,7 +2,7 @@ __author__ = "Darryl H"
 __copyright__ = "Copyright 2023, Darryl H"
 __credits__ = ["Darryl H"]
 __license__ = "GPL"
-__version__ = "1.0.1"
+__version__ = "20231228B"
 __maintainer__ = "Darryl H"
 __status__ = "Production"
 
@@ -13,6 +13,7 @@ import sys
 import socket
 import requests
 from typing import List
+import argparse  # Import argparse module
 
 # Determine if the script is running in basic mode
 use_basic_method = '-basic' in sys.argv
@@ -38,27 +39,50 @@ if not use_basic_method:
             print("Install it using the command: pip3 install PyPDF2")
         sys.exit(1)
 
-""" Configure logging to file with DEBUG level """
-log_file_path = 'panscan.log'
+""" Logging """
+# Configure the logging filename
+log_file_path = 'panspottr.log'
+# Set the log file to append mode
 file_handler = logging.FileHandler(log_file_path, mode='a')
+# Configure logging to file with DEBUG level """
 file_handler.setLevel(logging.DEBUG)
+# Set the log format
 file_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 file_handler.setFormatter(file_formatter)
-
-""" Configure logging to console with INFO level """
+# Configure logging to console with INFO level
 console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.INFO)
 console_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 console_handler.setFormatter(console_formatter)
-
-""" Create a logger and add both handlers """
+# Create a logger and add both handlers
 logger = logging.getLogger('')
 logger.setLevel(logging.DEBUG)
 logger.addHandler(file_handler)
 logger.addHandler(console_handler)
 
+def parse_arguments():
+    """
+    Parse command line arguments for the script.
+
+    Returns:
+        argparse.Namespace: An object containing parsed command line arguments.
+    """
+    parser = argparse.ArgumentParser(description="PANalysis Tool for Scanning and Reporting")
+    parser.add_argument('-basic', action='store_true', help='Enable basic scanning mode')
+    parser.add_argument('-unknown', action='store_true', help='Report unknown card types')
+    parser.add_argument('-p', '--path', type=str, default='/', help='Specify path to scan')
+    return parser.parse_args()
+
 def get_free_memory():
-    """ Get the amount of free memory in MB from /proc/meminfo. """
+    """
+    Get the amount of free memory in MB from /proc/meminfo.
+
+    Reads the 'MemAvailable' line from /proc/meminfo to find the available memory,
+    then converts it from kilobytes to megabytes.
+
+    Returns:
+        float: The amount of free memory in megabytes. Returns None if /proc/meminfo is not found.
+    """
     try:
         with open('/proc/meminfo', 'r') as meminfo:
             for line in meminfo:
@@ -70,7 +94,15 @@ def get_free_memory():
         return None
 
 def get_lan_ip():
-    """ Get the LAN IP address of the system. """
+    """
+    Get the LAN IP address of the system.
+
+    Attempts to create a UDP connection (which is not actually established) to determine the
+    LAN IP address of the machine.
+
+    Returns:
+        str: The LAN IP address of the machine. Returns None if an error occurs.
+    """
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
             s.connect(("8.8.8.8", 80))
@@ -79,15 +111,27 @@ def get_lan_ip():
         return None
 
 def get_external_ip():
-    """ Get the external IP address of the system. """
+    """
+    Get the external IP address of the system.
+
+    Makes an HTTP request to an external service (api.ipify.org) to find the public IP address.
+
+    Returns:
+        str: The external IP address of the machine. Returns None if an error occurs or the request fails.
+    """
     try:
         response = requests.get('https://api.ipify.org')
         return response.text
     except requests.RequestException:
         return None
 
-def get_system_info():
-    """ Get system information including hostname, local IP, external IP, and free memory. """
+def get_system_info(args):
+    """
+    Get and log system information including hostname, local IP, external IP, and free memory.
+
+    Logs system information using the logging module. This includes the system's hostname,
+    LAN IP address, external IP address, and available free memory.
+    """
     banner = """
                       ___  _   _  _ ___ ___  ___ _____ _____ ___ 
                      | _ \/_\ | \| / __| _ \/ _ \_   _|_   _| _ \\
@@ -102,6 +146,11 @@ def get_system_info():
     external_ip = get_external_ip()
     free_memory = get_free_memory()
     logging.info("-" * 30)
+    logging.info(f"Command line arguments:")
+    logging.info(f"Basic mode: {args.basic}")
+    logging.info(f"Report unknown cards: {args.unknown}")
+    logging.info(f"Scan path: {args.path if args.path else 'Default (/)'}")
+    logging.info("-" * 30)
     logging.info(f"Hostname: {hostname}")
     logging.info(f"LAN IP Address: {lan_ip if lan_ip else 'Not available'}")
     logging.info(f"External IP Address: {external_ip if external_ip else 'Not available'}")
@@ -110,24 +159,60 @@ def get_system_info():
 
 """ File type specific reading functions """
 def read_docx(file_path):
+    """
+    Read and extract text from a DOCX file.
+
+    Args:
+        file_path (str): Path to the DOCX file.
+
+    Returns:
+        str: The extracted text content from the DOCX file.
+    """
     doc = docx.Document(file_path)
     return "\n".join([para.text for para in doc.paragraphs])
 
 def read_pdf(file_path):
+    """
+    Read and extract text from a PDF file.
+
+    Args:
+        file_path (str): Path to the PDF file.
+
+    Returns:
+        str: The extracted text content from the PDF file.
+    """
     content = ""
     with open(file_path, "rb") as file:
         reader = PdfReader(file)
         for page in reader.pages:
-            content += page.extract_text()  # Use extract_text instead of extractText
+            # Use extract_text instead of extractText
+            content += page.extract_text()  
     return content
 
 def read_rtf(file_path):
+    """
+    Read and return content from an RTF file.
+
+    Args:
+        file_path (str): Path to the RTF file.
+
+    Returns:
+        str: The content of the RTF file.
+    """
     with open(file_path, "r", encoding='utf-8', errors='ignore') as file:
         return file.read()
 
 def is_luhn_valid(card_number: str) -> bool:
-    """ Check if the card number is valid based on Luhn's algorithm. """
-    """ Remove any known false positives """
+    """
+    Check if a card number is valid based on Luhn's algorithm.
+
+    Args:
+        card_number (str): The credit card number to validate.
+
+    Returns:
+        bool: True if the card number is valid according to Luhn's algorithm, False otherwise.
+    """
+    # Remove any known false positives
     false_positive_numbers = {'0000000000000000', '00000000000000', '000000000000000000'}
     if card_number in false_positive_numbers:
         return False
@@ -142,7 +227,15 @@ def is_luhn_valid(card_number: str) -> bool:
     return checksum % 10 == 0
 
 def get_card_type(card_number: str) -> str:
-    """ Determine the credit card type based on the card number. """
+    """
+    Determine the credit card type based on the card number.
+
+    Args:
+        card_number (str): The credit card number.
+
+    Returns:
+        str: The type of the credit card ('American Express', 'Discover', etc.) or 'Unknown'.
+    """
     card_type = "Unknown"
     first_digit = card_number[0]
     first_two_digits = card_number[:2]
@@ -166,7 +259,15 @@ def get_card_type(card_number: str) -> str:
     return card_type
 
 def find_potential_card_numbers(s: str) -> List[str]:
-    """ Find potential card numbers using regex. Assumes numbers are separated by non-numeric characters. """
+    """
+    Find potential card numbers in a given string using regex.
+
+    Args:
+        s (str): The string to search for potential card numbers.
+
+    Returns:
+        List[str]: A list of potential card numbers found in the string.
+    """
     potential_cards = re.findall(r'\b(?:\d[ -]*?){13,19}\b', s)
     return [''.join(filter(str.isdigit, card)) for card in potential_cards]
 
@@ -174,7 +275,16 @@ def find_potential_card_numbers(s: str) -> List[str]:
 ignored_extensions = {'.pdf', '.docx', '.bin', '.exe', '.dll', '.zip', '.rar', '.gz'}  # Add more as needed
 
 def scan_file(file_path: str, report_unknown=False):
-    """ Scan a single file for valid credit card numbers. """
+    """
+    Scan a single file for valid credit card numbers.
+
+    Args:
+        file_path (str): Path to the file to be scanned.
+        report_unknown (bool): Flag to report unknown card types.
+
+    This function will ignore certain file types based on their extensions and
+    scan others for potential credit card numbers.
+    """
     if file_path.endswith(log_file_path):
         return
 
@@ -202,7 +312,8 @@ def scan_file(file_path: str, report_unknown=False):
                 with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
                     content = file.read()
         else:
-            chunk_size = 1024 * 1024  # Size of each chunk in bytes (1MB in this example)
+            # Size of each chunk in bytes (1MB in this example)
+            chunk_size = 1024 * 1024
             with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
                 while True:
                     chunk = file.read(chunk_size)
@@ -217,7 +328,16 @@ def scan_file(file_path: str, report_unknown=False):
         logging.error(f"Error reading file {file_path}: {e}")
 
 def process_content(content: str, file_path: str, report_unknown=False):
-    """ Process the content of a file for valid credit card numbers. """
+    """
+    Process the content of a file for valid credit card numbers.
+
+    Args:
+        content (str): Content of the file.
+        file_path (str): Path of the file being processed.
+        report_unknown (bool): Flag to report unknown card types.
+
+    This function processes the content of a file and logs warnings for any valid credit card numbers found.
+    """
     potential_cards = find_potential_card_numbers(content)
     for card in potential_cards:
         if is_luhn_valid(card):
@@ -226,7 +346,15 @@ def process_content(content: str, file_path: str, report_unknown=False):
                 logging.warning(f"Valid {card_type} card number ({card}) found in {file_path}")
 
 def scan_directory(path: str, report_unknown=False):
-    """ Recursively scan a directory for files and analyze each file. """
+    """
+    Recursively scan a directory for files and analyze each file for credit card numbers.
+
+    Args:
+        path (str): Path of the directory to scan.
+        report_unknown (bool): Flag to report unknown card types.
+
+    This function scans each file in a directory and its subdirectories for potential credit card numbers.
+    """
     ignored_directories = {'/proc', '/sys', '/dev', '/var/log/journal', '/boot', '/tmp', '/var/tmp', '/lost+found', '/mnt', '/media', '/usr', '/bin', '/sbin', '/lib', '/lib64', '/run', '/srv', '/opt'}
     """
     /sys and /proc: Virtual filesystems providing windows into kernel internals.
@@ -242,17 +370,19 @@ def scan_directory(path: str, report_unknown=False):
     /opt: Used for the installation of add-on application software packages. Contains mostly static application files.
     """
     for root, dirs, files in os.walk(path):
-        """ Skip ignored directories """
+        # Skip ignored directories
         if any(ignored_dir in root for ignored_dir in ignored_directories):
             continue
         for file in files:
             scan_file(os.path.join(root, file), report_unknown)
 
 if __name__ == "__main__":
-    get_system_info()
-    report_unknown_cards = '-unknown' in sys.argv
-    logging.debug(f"Command line arguments passed:")
-    logging.debug(f"Basic: {use_basic_method}")
-    logging.debug(f"Report unknown cards: {report_unknown_cards}")
+    args = parse_arguments()
+    # Extract arguments
+    use_basic_method = args.basic
+    report_unknown_cards = args.unknown
+    scan_path = args.path
+    # Get and log system info
+    get_system_info(args)
     logging.debug("-" * 30)
-    scan_directory('/', report_unknown=report_unknown_cards)
+    scan_directory(scan_path, report_unknown=report_unknown_cards)
